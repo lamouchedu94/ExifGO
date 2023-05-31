@@ -4,8 +4,11 @@ import (
 	"bytes"
 	"errors"
 	"os"
+	"regexp"
 	"time"
 )
+
+var regDate = regexp.MustCompile(`\d{4}:\d{2}:\d{2} \d{2}:\d{2}:\d{2}`)
 
 func Image_date(img []byte, ext string) (time.Time, error) {
 	//
@@ -17,16 +20,13 @@ func Image_date(img []byte, ext string) (time.Time, error) {
 	default:
 		img = img[:1024]
 	}
-	i_date := bytes.Index(img, []byte(":"))
-	if i_date == -1 {
-		return time.Time{}, errors.New("File Not supported.")
+
+	m := regDate.Find(img)
+	if m == nil {
+		return time.Time{}, errors.New("file not supported")
 	}
 
-	datestr := ""
-	for _, car := range img[i_date-4 : i_date+15] {
-		datestr += string(car)
-	}
-	date, err := time.Parse("2006:01:02 15:04:05", datestr)
+	date, err := time.Parse("2006:01:02 15:04:05", string(m))
 	if err != nil {
 		return time.Time{}, err
 	}
@@ -65,9 +65,13 @@ func Camera_name(img []byte, ext string) (string, error) {
 }
 
 func Read_img(img_path string) ([]byte, error) {
-	b, err := os.ReadFile(img_path)
+	b := make([]byte, 1024)
+	f, err := os.Open(img_path)
 	if err != nil {
 		return nil, err
 	}
-	return b, nil
+	defer f.Close()
+	_, err = f.Read(b)
+
+	return b, err
 }
