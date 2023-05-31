@@ -1,9 +1,10 @@
 package main
 
 import (
-	"decode"
 	"fmt"
 	"path/filepath"
+
+	decode "github.com/lamouchedu94/ExifGO"
 )
 
 func main() {
