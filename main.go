@@ -1,12 +1,12 @@
-package test
+package main
 
 import (
 	"fmt"
-	"main/decode"
 	"path/filepath"
+	"test/decode"
 )
 
-func test() {
+func main() {
 	//fmt.Println("hello world")
 	files := []string{"3H2A7200.MP4", "3H2A8080.JPG", "3H2A8080.CR3"}
 	for _, image := range files {
