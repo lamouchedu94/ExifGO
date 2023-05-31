@@ -1,9 +1,9 @@
 package main
 
 import (
+	"decode"
 	"fmt"
 	"path/filepath"
-	"test/decode"
 )
 
 func main() {

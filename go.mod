@@ -1,3 +1,3 @@
-module test
+module decode
 
 go 1.20
