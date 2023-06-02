@@ -11,7 +11,7 @@ import (
 var regDate = regexp.MustCompile(`\d{4}:\d{2}:\d{2} \d{2}:\d{2}:\d{2}`)
 
 func Image_date(img []byte, ext string) (time.Time, error) {
-	//
+	//Ext = file extention
 	switch ext {
 	case ".JPG":
 		img = img[:256]
@@ -44,7 +44,7 @@ func Camera_name(img []byte, ext string) (string, error) {
 	}
 	i_model := bytes.Index(img, []byte("Canon E"))
 	if i_model == -1 {
-		return "", errors.New("File not supported.")
+		return "", errors.New("file not supported")
 	}
 
 	count := 0
