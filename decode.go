@@ -3,6 +3,7 @@ package decode
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"os"
 	"regexp"
 	"time"
@@ -10,13 +11,15 @@ import (
 
 var regDate = regexp.MustCompile(`\d{4}:\d{2}:\d{2} \d{2}:\d{2}:\d{2}`)
 
+// pour la date : 01 00 00 00 32
 func Image_date(img []byte, ext string) (time.Time, error) {
 	//Ext = file extention
 	switch ext {
 	case ".JPG":
 		img = img[:256]
 	case ".CR3":
-		img = img[:1024]
+		img = img[:256]
+		//Cr3(img)
 	default:
 		img = img[:1024]
 	}
@@ -31,6 +34,28 @@ func Image_date(img []byte, ext string) (time.Time, error) {
 		return time.Time{}, err
 	}
 	return date, nil
+}
+func Cr3(img []byte) error {
+	//a := fmt.Sprintf("%X", img[4])
+	motif := [5]int{1, 0, 0, 0, 32}
+	i := 0
+	for k, val := range img {
+
+		//fmt.Printf("%X", val)
+		if fmt.Sprintf("%X", val) == fmt.Sprintf("%d", motif[i]) {
+			//fmt.Println(i)
+			i += 1
+			if i == len(motif) {
+				break
+			}
+		} else {
+			fmt.Printf("%X", img[k])
+			i = 0
+		}
+		_ = k
+	}
+
+	return nil
 }
 
 func Camera_name(img []byte, ext string) (string, error) {

@@ -9,13 +9,15 @@ import (
 
 func main() {
 	//fmt.Println("hello world")
-	files := []string{"3H2A7200.MP4", "3H2A8080.JPG", "3H2A8080.CR3"}
-	for _, image := range files {
-		fmt.Println(image)
-		run(image)
-		fmt.Println()
-	}
-
+	files := "/home/paul/Pictures/3H2A5950.CR3"
+	run(files)
+	/*
+		for _, image := range files {
+			fmt.Println(image)
+			run(image)
+			fmt.Println()
+		}
+	*/
 }
 
 func run(path string) {
