@@ -14,7 +14,6 @@ var regDate = regexp.MustCompile(`\d{4}:\d{2}:\d{2} \d{2}:\d{2}:\d{2}`)
 // pour la date : 01 00 00 00 32
 func Image_date(img []byte, ext string) (time.Time, error) {
 	//Ext = file extention
-	k := 0
 	s := ""
 	switch ext {
 	case ".JPG":
@@ -22,16 +21,21 @@ func Image_date(img []byte, ext string) (time.Time, error) {
 	case ".CR3":
 		//img = img[:256]
 		s, _ = Cr3(img)
+		date, err := time.Parse("2006:01:02 15:04:05", s)
+		if err != nil {
+			return time.Time{}, err
+		}
+		return date, nil
 	default:
 		img = img[:1024]
 	}
 
-	for _, b := range img[k : k+110] {
-		//fmt.Print(string(b))
-		_ = b
+	m := regDate.Find(img)
+	if m == nil {
+		return time.Time{}, errors.New("file not supported")
 	}
 
-	date, err := time.Parse("2006:01:02 15:04:05", string(s))
+	date, err := time.Parse("2006:01:02 15:04:05", string(m))
 	if err != nil {
 		return time.Time{}, err
 	}
