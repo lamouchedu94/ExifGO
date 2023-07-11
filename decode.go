@@ -14,48 +14,51 @@ var regDate = regexp.MustCompile(`\d{4}:\d{2}:\d{2} \d{2}:\d{2}:\d{2}`)
 // pour la date : 01 00 00 00 32
 func Image_date(img []byte, ext string) (time.Time, error) {
 	//Ext = file extention
+	k := 0
+	s := ""
 	switch ext {
 	case ".JPG":
 		img = img[:256]
 	case ".CR3":
-		img = img[:256]
-		//Cr3(img)
+		//img = img[:256]
+		s, _ = Cr3(img)
 	default:
 		img = img[:1024]
 	}
 
-	m := regDate.Find(img)
-	if m == nil {
-		return time.Time{}, errors.New("file not supported")
+	for _, b := range img[k : k+110] {
+		//fmt.Print(string(b))
+		_ = b
 	}
 
-	date, err := time.Parse("2006:01:02 15:04:05", string(m))
+	date, err := time.Parse("2006:01:02 15:04:05", string(s))
 	if err != nil {
 		return time.Time{}, err
 	}
 	return date, nil
 }
-func Cr3(img []byte) error {
+func Cr3(img []byte) (string, error) {
 	//a := fmt.Sprintf("%X", img[4])
-	motif := [5]int{1, 0, 0, 0, 32}
-	i := 0
-	for k, val := range img {
-
-		//fmt.Printf("%X", val)
-		if fmt.Sprintf("%X", val) == fmt.Sprintf("%d", motif[i]) {
-			//fmt.Println(i)
-			i += 1
-			if i == len(motif) {
-				break
-			}
+	motif := [5]string{"1", "0", "0", "0", "32"}
+	k := 0
+	start := 0
+	for i, val := range img {
+		//fmt.Printf("%X\n", val)
+		if fmt.Sprintf("%X", val) == motif[k] {
+			k += 1
+			//fmt.Printf("%X ", img[i:i+5])
+			//fmt.Println()
 		} else {
-			fmt.Printf("%X", img[k])
-			i = 0
+			k = 0
 		}
-		_ = k
+		if k == 5 {
+			start = i
+			break
+		}
+
 	}
 
-	return nil
+	return fmt.Sprintf("%s", img[start:start+19]), nil
 }
 
 func Camera_name(img []byte, ext string) (string, error) {

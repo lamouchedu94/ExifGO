@@ -9,7 +9,7 @@ import (
 
 func main() {
 	//fmt.Println("hello world")
-	files := "/home/paul/Pictures/3H2A5950.CR3"
+	files := "/home/paul/Images/Test/3H2A0105.CR3"
 	run(files)
 	/*
 		for _, image := range files {
@@ -39,6 +39,7 @@ func run(path string) {
 		fmt.Print(path, ": ")
 		fmt.Println(err)
 	}
-	fmt.Println(name)
+	_, _ = name, date
+	//fmt.Println(name)
 	fmt.Println(date)
 }
