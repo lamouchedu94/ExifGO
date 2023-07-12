@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"strings"
 	"time"
 )
 
@@ -17,11 +18,14 @@ func Image_date(img []byte, ext string) (time.Time, error) {
 	//Ext = file extension
 	var cr3 = []byte{0, 0x48, 0, 0, 0, 1, 0, 0, 0, 0x48, 0, 0, 0, 1, 0, 0, 0}
 	var jpg = []byte{0x48, 0, 0, 0, 1, 0, 0, 0, 0x48, 0, 0, 0, 1, 0, 0, 0}
+	ext = strings.ToUpper(ext)
 	switch ext {
 	case ".JPG":
 		return Date(img, jpg)
 	case ".CR3":
 		return Date(img, cr3)
+	case ".MP4":
+		return Date(img, jpg)
 	default:
 		img = img[:1024]
 	}
@@ -33,7 +37,7 @@ func Image_date(img []byte, ext string) (time.Time, error) {
 
 	date, err := time.Parse("2006:01:02 15:04:05", string(m))
 	if err != nil {
-		return time.Time{}, err
+		return time.Time{}, MissingDate
 	}
 	return date, nil
 }
@@ -45,7 +49,7 @@ func Date(img []byte, flag []byte) (time.Time, error) {
 	}
 	date, err := time.Parse("2006:01:02 15:04:05", string(img[start:start+19]))
 	if err != nil {
-		return time.Time{}, err
+		return time.Time{}, MissingDate
 	}
 	return date, nil
 }
@@ -66,7 +70,7 @@ func Camera_name(img []byte, ext string) (string, error) {
 	}
 	i_model := bytes.Index(img, []byte("Canon E"))
 	if i_model == -1 {
-		return "", errors.New("file not supported")
+		return "", MissingOwner
 	}
 
 	count := 0
