@@ -40,6 +40,6 @@ func run(path string) {
 		fmt.Println(err)
 	}
 	_, _ = name, date
-	//fmt.Println(name)
+	fmt.Println(name)
 	fmt.Println(date)
 }

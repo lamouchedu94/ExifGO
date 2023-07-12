@@ -20,7 +20,7 @@ func Image_date(img []byte, ext string) (time.Time, error) {
 		img = img[:256]
 	case ".CR3":
 		//img = img[:256]
-		s, _ = Cr3(img)
+		s, _ = Cr3_Date(img[:1024])
 		date, err := time.Parse("2006:01:02 15:04:05", s)
 		if err != nil {
 			return time.Time{}, err
@@ -41,17 +41,14 @@ func Image_date(img []byte, ext string) (time.Time, error) {
 	}
 	return date, nil
 }
-func Cr3(img []byte) (string, error) {
-	//a := fmt.Sprintf("%X", img[4])
+func Cr3_Date(img []byte) (string, error) {
 	motif := [5]string{"1", "0", "0", "0", "32"}
 	k := 0
 	start := 0
 	for i, val := range img {
-		//fmt.Printf("%X\n", val)
 		if fmt.Sprintf("%X", val) == motif[k] {
 			k += 1
-			//fmt.Printf("%X ", img[i:i+5])
-			//fmt.Println()
+
 		} else {
 			k = 0
 		}
@@ -70,7 +67,12 @@ func Camera_name(img []byte, ext string) (string, error) {
 	case ".JPG":
 		img = img[:256]
 	case ".CR3":
-		img = img[:1024]
+		//img = img[:1024]
+		s, err := Cr3_Name(img[:1024])
+		if err != nil {
+			return "", err
+		}
+		return s, nil
 	default:
 		img = img[:1024]
 	}
@@ -94,6 +96,34 @@ func Camera_name(img []byte, ext string) (string, error) {
 	}
 
 	return res, nil
+}
+
+func Cr3_Name(img []byte) (string, error) {
+	motif := [5]string{"1", "0", "0", "0", "32"}
+	k := 0
+	start := 0
+	end := 0
+	for i, val := range img {
+		if fmt.Sprintf("%X", val) == motif[k] {
+			k += 1
+
+		} else {
+			k = 0
+		}
+		if k == 5 {
+			start = i
+			break
+		}
+
+	}
+	for i, val := range img[start+20:] {
+		if fmt.Sprintf("%X", val) == "0" {
+			end = i
+			break
+		}
+	}
+
+	return fmt.Sprintf("%s", img[start+20:start+20+end]), nil
 }
 
 func Read_img(img_path string) ([]byte, error) {
