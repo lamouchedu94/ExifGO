@@ -10,6 +10,8 @@ import (
 )
 
 var regDate = regexp.MustCompile(`\d{4}:\d{2}:\d{2} \d{2}:\d{2}:\d{2}`)
+var MissingDate = errors.New("no date")
+var MissingOwner = errors.New("no owner")
 
 // pour la date : 01 00 00 00 32
 func Image_date(img []byte, ext string) (time.Time, error) {
@@ -41,25 +43,13 @@ func Image_date(img []byte, ext string) (time.Time, error) {
 	}
 	return date, nil
 }
+
 func Cr3_Date(img []byte) (string, error) {
-	motif := [5]string{"1", "0", "0", "0", "32"}
-	k := 0
-	start := 0
-	for i, val := range img {
-		if fmt.Sprintf("%X", val) == motif[k] {
-			k += 1
-
-		} else {
-			k = 0
-		}
-		if k == 5 {
-			start = i
-			break
-		}
-
+	start := bytes.Index(img, []byte{1, 0, 0, 0, 0x32}) + 4
+	if start < 0 {
+		return "", MissingDate
 	}
-
-	return fmt.Sprintf("%s", img[start:start+19]), nil
+	return string(img[start : start+19]), nil
 }
 
 func Camera_name(img []byte, ext string) (string, error) {
@@ -99,23 +89,11 @@ func Camera_name(img []byte, ext string) (string, error) {
 }
 
 func Cr3_Name(img []byte) (string, error) {
-	motif := [5]string{"1", "0", "0", "0", "32"}
-	k := 0
-	start := 0
-	end := 0
-	for i, val := range img {
-		if fmt.Sprintf("%X", val) == motif[k] {
-			k += 1
-
-		} else {
-			k = 0
-		}
-		if k == 5 {
-			start = i
-			break
-		}
-
+	start := bytes.Index(img, []byte{1, 0, 0, 0, 0x32}) + 4
+	if start < 0 {
+		return "", MissingOwner
 	}
+	end := 0
 	for i, val := range img[start+20:] {
 		if fmt.Sprintf("%X", val) == "0" {
 			end = i
@@ -123,7 +101,7 @@ func Cr3_Name(img []byte) (string, error) {
 		}
 	}
 
-	return fmt.Sprintf("%s", img[start+20:start+20+end]), nil
+	return string(img[start+20 : start+20+end]), nil
 }
 
 func Read_img(img_path string) ([]byte, error) {
