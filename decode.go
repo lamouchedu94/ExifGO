@@ -15,19 +15,13 @@ var MissingOwner = errors.New("no owner")
 
 // pour la date : 01 00 00 00 32
 func Image_date(img []byte, ext string) (time.Time, error) {
-	//Ext = file extention
-	s := ""
+	//Ext = file extension
 	switch ext {
 	case ".JPG":
+		return Jpg_Date(img)
 		img = img[:256]
 	case ".CR3":
-		//img = img[:256]
-		s, _ = Cr3_Date(img[:1024])
-		date, err := time.Parse("2006:01:02 15:04:05", s)
-		if err != nil {
-			return time.Time{}, err
-		}
-		return date, nil
+		return Cr3_Date(img[:1024])
 	default:
 		img = img[:1024]
 	}
@@ -44,12 +38,30 @@ func Image_date(img []byte, ext string) (time.Time, error) {
 	return date, nil
 }
 
-func Cr3_Date(img []byte) (string, error) {
+func Jpg_Date(img []byte) (time.Time, error) {
+	start := bytes.Index(img, []byte{0x48, 0, 0, 0, 1, 0, 0, 0, 0x48, 0, 0, 0, 1, 0, 0, 0}) + 16
+	if start < 0 {
+		return time.Time{}, MissingDate
+	}
+	date, err := time.Parse("2006:01:02 15:04:05", string(img[start:start+19]))
+	if err != nil {
+		return time.Time{}, err
+	}
+	return date, nil
+}
+
+func Cr3_Date(img []byte) (time.Time, error) {
 	start := bytes.Index(img, []byte{1, 0, 0, 0, 0x32}) + 4
 	if start < 0 {
-		return "", MissingDate
+		return time.Time{}, MissingDate
 	}
-	return string(img[start : start+19]), nil
+
+	date, err := time.Parse("2006:01:02 15:04:05", string(img[start:start+19]))
+	if err != nil {
+		return time.Time{}, err
+	}
+
+	return date, nil
 }
 
 func Camera_name(img []byte, ext string) (string, error) {
@@ -100,7 +112,6 @@ func Cr3_Name(img []byte) (string, error) {
 			break
 		}
 	}
-
 	return string(img[start+20 : start+20+end]), nil
 }
 

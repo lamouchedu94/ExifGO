@@ -9,7 +9,7 @@ import (
 
 func main() {
 	//fmt.Println("hello world")
-	files := "/home/paul/Images/Test/3H2A0105.CR3"
+	files := "/home/paul/Images/Test/3H2A0105.JPG"
 	run(files)
 	/*
 		for _, image := range files {
